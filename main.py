@@ -4,6 +4,7 @@ from models.models import Base, Book, User, BookSchema, UserSchema
 from db.supabase import create_supabase_client
 from db.supabase import ENGINE
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy import select 
 
 
 app = FastAPI()    
@@ -13,6 +14,7 @@ supabase = create_supabase_client()
 Base.metadata.create_all(ENGINE)  
 
 session = sessionmaker(ENGINE)
+
 
 
 # définition des routes
@@ -34,8 +36,23 @@ def add_book(data:dict) -> BookSchema:
 
 
 @app.get("/all_books")
-def get_all_books():
-    pass
+def get_all_books()-> list[BookSchema]:
+    try:
+        db = session()
+        res = []
+        query = db.query(Book)
+        all_books = db.execute(query).scalars()
+
+        
+        # créer une liste de book instances de class BookSchema. 
+        for book in all_books:
+            res.append(BookSchema(**book.__dict__))
+ 
+        return res
+    except:
+        pass
+    finally:
+        db.close()
 
 
 @app.get("/book/{id}")
