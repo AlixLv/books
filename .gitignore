@@ -1,0 +1,14 @@
+.pytest_cache
+__pycache__/
+
+# Environments 
+.env 
+.venv 
+myvenv/
+env/ 
+venv/ 
+ENV/ 
+env.bak/ 
+venv.bak/ __ pycache __/
+.env
+myvenv
