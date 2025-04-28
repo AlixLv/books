@@ -16,10 +16,13 @@ config = context.config
 
 # Récupérer la configuration de alembic.ini
 config_section = context.config.get_section(context.config.config_ini_section)
+print(f"🛑 {config_section}")
 
 # Remplacer l'URL par celle de la variable d'environnement
 db_url = config("DB_URL")
+print(f"Ⓜ️ {db_url}")
 config_section["sqlalchemy.url"] = db_url
+print(f"🟡{config_section}")
 
 # Mettre à jour aussi l'URL dans l'objet config lui-même
 config.set_main_option("sqlalchemy.url", db_url)
@@ -34,7 +37,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = None
+#target_metadata = None
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

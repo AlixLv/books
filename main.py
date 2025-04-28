@@ -1,19 +1,17 @@
 from fastapi import FastAPI, HTTPException, Path
-import json
-from models.models import Base, Book, User, BookSchema, UserSchema
-from db.supabase import create_supabase_client
-from db.supabase import ENGINE
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import select 
+from .models.models import Book, User, BookSchema, UserSchema
+from .db.supabase import ENGINE, Base
+from sqlalchemy.orm import sessionmaker 
+from .exceptions.exceptions import BookAlreadyExists
 
 
 app = FastAPI()    
-supabase = create_supabase_client()
+#supabase = create_supabase_client()
 
 # création des tables si elles n'existent pas encore
 Base.metadata.create_all(ENGINE)  
 
-session = sessionmaker(ENGINE)
+session = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
 
 
 
@@ -25,14 +23,24 @@ def add_book(data:dict) -> BookSchema:
         book_schema = BookSchema(**data)
         print(f"🌼 nouveau book schéma: {book_schema}")
         
-        db.add(Book(**book_schema.model_dump()))
-        db.commit()
-        print(f"🔥 nouveau livre ajouté avec succcès: {book_schema}")
-    except:
-        pass
+        existing_book = db.query(Book).filter(Book.title == book_schema.title).first()
+        
+        if existing_book:
+            raise BookAlreadyExists("Le livre existe déjà dans la db!", 400)
+        else:
+            db.add(Book(**book_schema.model_dump()))
+            db.commit()
+            print(f"🔥 nouveau livre ajouté avec succcès: {book_schema}")
+            return book_schema
+    except TypeError as e:
+        print(f"❌ Erreur dans le type de data reçue: {e}")
+        raise 
+    except BookAlreadyExists as e:
+            print(f"❌ Erreur pendant l'ajout d'un livre: {e}")
+            raise e
     finally:
         db.close()
-    return book_schema
+   
 
 
 @app.get("/all_books")
@@ -43,7 +51,6 @@ def get_all_books()-> list[BookSchema]:
         query = db.query(Book)
         all_books = db.execute(query).scalars()
 
-        
         # créer une liste de book instances de class BookSchema. 
         for book in all_books:
             res.append(BookSchema(**book.__dict__))

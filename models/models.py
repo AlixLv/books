@@ -1,12 +1,9 @@
-#from dataclasses import dataclass
+from ..db.supabase import Base
 from enum import Enum
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Enum as SQLAlechmyEnum
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-
-
-Base = declarative_base()
 
 
 ##### ENUM #####
@@ -32,7 +29,6 @@ class CategoriesEnum(str, Enum):
  
  
 ##### SCHEMAS FOR API VALIDATION #####    
-#@dataclass
 class BookSchema(BaseModel):
     id: int = None
     title: str
@@ -50,7 +46,7 @@ class BookSchema(BaseModel):
 class UserSchema(BaseModel):
     id: int = None
     name: str
-    email: str
+    email: EmailStr
     password: str
     
     class Config:

@@ -13,3 +13,4 @@ env.bak/
 venv.bak/ __ pycache __/
 .env
 myvenv
+prod-ca-2021.crt
