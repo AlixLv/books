@@ -15,15 +15,20 @@ async def get_all_books():
             res = []
             query = db.query(Book)
             all_books = db.execute(query).scalars()
+            
+            if not all_books:
+                raise HTTPException(status_code=404, detail=f"Aucun livre enregistré dans la db!")
 
             # créer une liste de book instances de class BookSchema. 
             for book in all_books:
                 res.append(BookSchema(**book.__dict__))
     
             return res
-    except:
-        pass
+    except HTTPException as http_ex:
+        raise http_ex
         
+        
+  
         
 @router.get("/book/{id}", response_model=BookSchema)
 async def get_book(id:int = Path(ge=1)):
@@ -67,3 +72,29 @@ async def add_book(data:dict):
     except BookAlreadyExists as e:
             print(f"❌ Erreur pendant l'ajout d'un livre: {e}")
             raise e
+
+
+@router.put("/update_book/{id}", response_model=BookSchema)
+async def update_book(book_update:BookSchema, id:int = Path(ge=1)):
+    try:
+        with SessionLocal() as db:
+            query = select(Book).where(Book.id == id)
+            result = db.execute(query).first()
+            
+            book = result[0]
+            print(f"🟡{book.__dict__}, {type(book)}")
+            
+            if not result:
+                raise HTTPException(status_code=404, detail="Customer not found")
+            
+            for field, value in book_update.model_dump().items():
+                setattr(book, field, value)
+            print(f"📙 {book.__dict__}")  
+            
+            db.commit()
+            db.refresh(book)
+            
+            res = BookSchema(**book.__dict__)
+            return res  
+    except HTTPException as http_ex:
+        raise http_ex    

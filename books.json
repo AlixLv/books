@@ -46,6 +46,15 @@
     },
     {
         "id": 6,
+        "title": "Happy Endings",
+        "author": "Lucie Bryon",
+        "availability": "borrowed",
+        "status": "read",
+        "category": "comics",
+        "favourite": false 
+    },
+    {
+        "id": 7,
         "title": "Minuit passé",
         "author": "Geniller Gaëlle",
         "availability": "borrowed",
@@ -54,7 +63,7 @@
         "favourite": true 
     },
     {
-        "id": 7,
+        "id": 8,
         "title": "L'amour sous algorithme",
         "author": "Duportail Judith",
         "availability": "borrowed",
@@ -63,7 +72,7 @@
         "favourite": false 
     },
     {
-        "id": 8,
+        "id": 9,
         "title": "L'art de perdre",
         "author": "Alice Zeniter",
         "availability": "bought",
@@ -72,7 +81,7 @@
         "favourite": true 
     },
     {
-        "id": 9,
+        "id": 10,
         "title": "De pierre et d'os",
         "author": "Bérangère Cornut",
         "availability": "borrowed",
