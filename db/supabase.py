@@ -31,13 +31,13 @@ except Exception as e:
 
 
 # session = création de l'interface pour intéragir avec la db
-session = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
 Base = declarative_base()
 
 
 def get_session():
     """Créer une session pour les opérations sur la base."""
-    session = session()
+    session = SessionLocal()
     try:
         yield session
     finally:

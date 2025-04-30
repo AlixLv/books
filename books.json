@@ -70,6 +70,15 @@
         "status": "read",
         "category": "fiction",
         "favourite": true 
+    },
+    {
+        "id": 9,
+        "title": "De pierre et d'os",
+        "author": "Bérangère Cornut",
+        "availability": "borrowed",
+        "status": "read",
+        "category": "fiction",
+        "favourite": true 
     }
 
 
