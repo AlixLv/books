@@ -1,18 +1,10 @@
 from fastapi import FastAPI, HTTPException, Path
-from .models.models import Book, User, BookSchema, UserSchema
-from .db.supabase import ENGINE, Base
-from sqlalchemy.orm import sessionmaker 
-from .exceptions.exceptions import BookAlreadyExists
+from models.models import Book, User, BookSchema, UserSchema
+from db.supabase import ENGINE, Base, session
+from exceptions.exceptions import BookAlreadyExists
 
 
 app = FastAPI()    
-#supabase = create_supabase_client()
-
-# création des tables si elles n'existent pas encore
-Base.metadata.create_all(ENGINE)  
-
-session = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
-
 
 
 # définition des routes
@@ -66,4 +58,9 @@ def get_all_books()-> list[BookSchema]:
 def get_book(id:int = Path(ge=1)):
     pass
 
-    
+
+if __name__ == "__main__":
+    print("Création des tables")
+    # création des tables si elles n'existent pas encore
+    Base.metadata.create_all(ENGINE)    
+    print("Tables créées avec succès!")  

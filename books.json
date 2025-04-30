@@ -61,7 +61,17 @@
         "status": "read",
         "category": "essay",
         "favourite": false 
+    },
+    {
+        "id": 8,
+        "title": "L'art de perdre",
+        "author": "Alice Zeniter",
+        "availability": "bought",
+        "status": "read",
+        "category": "fiction",
+        "favourite": true 
     }
+
 
 
 

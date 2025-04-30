@@ -1,39 +1,49 @@
-from decouple import config
+import os
+from dotenv import load_dotenv
 from sqlalchemy import create_engine, URL
-from supabase import create_client, Client
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
 
-url_db = config("SUPABASE_URL")
-key_db = config("SUPABASE_KEY")
-db_url_connexion = config("DB_URL")
+load_dotenv() 
 
-user_db = config("user") 
-password_db = config("password")
-host_db = config("host")
-port_db = config("port")
-dbname_db = config("dbname")
+url_db = os.getenv("SUPABASE_URL")
+key_db = os.getenv("SUPABASE_KEY")
+db_url_connexion = os.getenv("DB_URL")
 
-url_object = URL.create("postgresql+psycopg2", username=user_db, password=password_db, host=host_db, database=dbname_db,)
+user=os.getenv('user')
+password=os.getenv('password')
+host=os.getenv('host')
+port=os.getenv('port')
+dbname=os.getenv('dbname')
+
+
+URL_CONNEXION = f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{dbname}"
 
 
 # création point de départ pour intéragir avec la db, via la DBAPI
 try:
-    ENGINE = create_engine(db_url_connexion,  pool_pre_ping=True)
+    ENGINE = create_engine(URL_CONNEXION, pool_pre_ping=True, echo=True)
     connection = ENGINE.connect()
     print(f"Connexion SQLAlchemy réussie")
 except Exception as e:
     print(f"Erreur de connexion SQLALchemy: {e}")    
 
 
+# session = création de l'interface pour intéragir avec la db
+session = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
 Base = declarative_base()
 
-#connexion à Supabase via son API, attention fait doublon avec ENGINE de SQLAlchemy:
-def create_supabase_client():
+
+def get_session():
+    """Créer une session pour les opérations sur la base."""
+    session = session()
     try:
-        supabase: Client = create_client(url_db, key_db)
-        print(f"🔥 successfully connected to db!")
-    except ConnectionError as e:
-        print(f"An error occured while trying to connect to db: {e}")
-            
-    return supabase
+        yield session
+    finally:
+        session.close()
+
+
+
+
+

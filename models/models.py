@@ -1,16 +1,15 @@
-from ..db.supabase import Base
 from enum import Enum
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Enum as SQLAlechmyEnum
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from db.supabase import Base 
 
 
 ##### ENUM #####
 class AvailabilityEnum(str, Enum):
     borrowed = "borrowed"
     lent = "lent"
-    bought =" bought"
+    bought ="bought"
 
 
 class StatusEnum(str, Enum):
