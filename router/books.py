@@ -5,10 +5,12 @@ from models.models import BookSchema, Book, UserSchema, User
 from exceptions.exceptions import BookAlreadyExists
 
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/book"
+)
 
 
-@router.get("/book/all", response_model=list[BookSchema])
+@router.get("/all", response_model=list[BookSchema])
 async def get_all_books():
     try:
         with SessionLocal() as db:
@@ -30,7 +32,7 @@ async def get_all_books():
         
   
         
-@router.get("/book/{id}", response_model=BookSchema)
+@router.get("/{id}", response_model=BookSchema)
 async def get_book(id:int = Path(ge=1)):
     try:
         with SessionLocal() as db:
@@ -50,7 +52,7 @@ async def get_book(id:int = Path(ge=1)):
    
 
 
-@router.post("/book/add", response_model=BookSchema)
+@router.post("/add", response_model=BookSchema)
 async def add_book(data:dict):
     try:
         with SessionLocal() as db:
@@ -74,7 +76,7 @@ async def add_book(data:dict):
             raise e
 
 
-@router.put("/book/update/{id}", response_model=BookSchema)
+@router.put("/update/{id}", response_model=BookSchema)
 async def update_book(book_update:BookSchema, id:int = Path(ge=1)):
     try:
         with SessionLocal() as db:
@@ -99,7 +101,7 @@ async def update_book(book_update:BookSchema, id:int = Path(ge=1)):
         raise http_ex    
 
 
-@router.delete("/book/delete/{id}", response_model=BookSchema)
+@router.delete("/delete/{id}", response_model=BookSchema)
 async def delete_book(id: int = Path(ge=1)):
     try:
         with SessionLocal() as db:
