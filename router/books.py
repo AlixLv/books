@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Path, HTTPException
-from db.supabase import SessionLocal, get_session
+from db.supabase import SessionLocal
 from sqlalchemy import select
 from models.models import BookSchema, Book, UserSchema, User
 from exceptions.exceptions import BookAlreadyExists
@@ -8,7 +8,7 @@ from exceptions.exceptions import BookAlreadyExists
 router = APIRouter()
 
 
-@router.get("/all_books", response_model=list[BookSchema])
+@router.get("/book/all", response_model=list[BookSchema])
 async def get_all_books():
     try:
         with SessionLocal() as db:
@@ -50,7 +50,7 @@ async def get_book(id:int = Path(ge=1)):
    
 
 
-@router.post("/new_book", response_model=BookSchema)
+@router.post("/book/add", response_model=BookSchema)
 async def add_book(data:dict):
     try:
         with SessionLocal() as db:
@@ -74,7 +74,7 @@ async def add_book(data:dict):
             raise e
 
 
-@router.put("/update_book/{id}", response_model=BookSchema)
+@router.put("/book/update/{id}", response_model=BookSchema)
 async def update_book(book_update:BookSchema, id:int = Path(ge=1)):
     try:
         with SessionLocal() as db:
@@ -82,7 +82,6 @@ async def update_book(book_update:BookSchema, id:int = Path(ge=1)):
             result = db.execute(query).first()
             
             book = result[0]
-            print(f"🟡{book.__dict__}, {type(book)}")
             
             if not result:
                 raise HTTPException(status_code=404, detail="Customer not found")
@@ -98,3 +97,24 @@ async def update_book(book_update:BookSchema, id:int = Path(ge=1)):
             return res  
     except HTTPException as http_ex:
         raise http_ex    
+
+
+@router.delete("/book/delete/{id}", response_model=BookSchema)
+async def delete_book(id: int = Path(ge=1)):
+    try:
+        with SessionLocal() as db:
+            query = select(Book).where(Book.id==id)
+            result = db.execute(query).first()
+            
+            if not result:
+                raise HTTPException(status_code=404, detail=f"Le livre id {id} n'existe pas dans la base de données")
+            
+            book = result[0]
+            res = BookSchema(**book.__dict__)
+            print(f"📘 {res}, {type(res)}")
+            
+            db.delete(book)
+            db.commit()
+            return res
+    except HTTPException as http_ex: 
+        raise http_ex
