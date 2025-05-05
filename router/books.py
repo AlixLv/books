@@ -2,7 +2,9 @@ from fastapi import APIRouter, Path, HTTPException
 from db.supabase import SessionLocal
 from sqlalchemy import select
 from pydantic import ValidationError
-from models.models import BookSchema, Book, UserSchema, User
+#from models.models import BookSchema, Book, UserSchema, User
+from models.book_models import Book
+from schemas.book_schemas import BookSchema
 from exceptions.exceptions import BookAlreadyExists
 
 

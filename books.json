@@ -88,6 +88,14 @@
         "status": "read",
         "category": "fiction",
         "favourite": true 
+    },
+    {
+        "title": "Suite française",
+        "author": "Irène Némirovsky",
+        "availability": "bought",
+        "status": "read",
+        "category": "fiction",
+        "favourite": true 
     }
 
 
