@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
-from models.models import Book, User, BookSchema, UserSchema
+from models.user_models import User
+from models.book_models import Book
 from db.supabase import ENGINE, Base, SessionLocal
 from router import books, users
 from exceptions.exceptions import ApiException
