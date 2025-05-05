@@ -86,7 +86,7 @@ async def update_book(book_update:BookSchema, id:int = Path(ge=1)):
             book = result[0]
             
             if not result:
-                raise HTTPException(status_code=404, detail="Customer not found")
+                raise HTTPException(status_code=404, detail="Le livre id {id} n'existe pas dans la db!")
             
             for field, value in book_update.model_dump().items():
                 setattr(book, field, value)
