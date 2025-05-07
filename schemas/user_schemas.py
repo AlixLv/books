@@ -2,7 +2,6 @@ from pydantic import BaseModel, EmailStr
 
 
 class UserSchema(BaseModel):
-    id: int = None
     name: str
     email: EmailStr
     password: str

@@ -2,7 +2,6 @@ from fastapi import APIRouter, Path, HTTPException
 from db.supabase import SessionLocal
 from sqlalchemy import select
 from pydantic import ValidationError
-#from models.models import BookSchema, Book, UserSchema, User
 from models.book_models import Book
 from schemas.book_schemas import BookSchema
 from exceptions.exceptions import BookAlreadyExists
@@ -72,7 +71,7 @@ async def add_book(data:dict):
                 return book_schema
     except ValidationError as e:
         print(f"❌ Erreur dans le type de data reçue: {e.errors()}")
-        raise 
+         
 
 
 
