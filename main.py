@@ -1,16 +1,20 @@
-from fastapi import FastAPI, HTTPException, Request
+from typing import Annotated
+from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.responses import JSONResponse
 from models.user_models import User
 from models.book_models import Book
+from schemas.user_schemas import UserSchema
 from db.supabase import ENGINE, Base, SessionLocal
 from router import books, users
 from exceptions.exceptions import ApiException
 from datetime import datetime
+from fastapi.security import OAuth2PasswordBearer
 
 
 app = FastAPI()    
 
 app.include_router(books.router)
+app.include_router(users.router)
 
 
 @app.exception_handler(HTTPException)
