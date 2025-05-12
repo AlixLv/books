@@ -3,12 +3,13 @@ from dotenv import load_dotenv
 from fastapi import APIRouter, Path, HTTPException, Depends, status
 from db.supabase import SessionLocal
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm 
-import bcrypt
 from models.user_models import User
-from schemas.user_schemas import UserSchema
+from schemas.user_schemas import *
 from typing import Annotated
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
+from controllers.users_controllers import *
+
 
 load_dotenv()
 
@@ -27,23 +28,6 @@ router = APIRouter(
     prefix="/user"
 )
 
-
-def get_password_hash(password):
-    # hashpw() hashes une string et génère un stal hash alétoire
-    return bcrypt.hashpw(
-        password.encode("utf-8"),
-        bcrypt.gensalt(),
-        # on stocke le hash comme string
-        ).decode("utf-8")
-
-
-def verify_password(plain_password, hashed_password):
-    # checkpw() compare le password en string en clair avec le password hashé en db
-    return bcrypt.checkpw(
-        plain_password.encode("utf-8"),
-        # on convertit le hash stocké en bytes
-        hashed_password.encode("utf-8")
-        )
 
 
 @router.post("/register", response_model=UserSchema)
@@ -67,24 +51,29 @@ async def register_user(user: dict):
         return user_schema
 
 
-@router.post("/login")
+@router.post("/token")
 async def login_user(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     with SessionLocal() as db:
-        user_db = db.query(User).filter(User.name == form_data.username).first()
-        print(f"🌼 user db: {user_db}")
+        user_db = get_user(form_data.username)
+        print(f"🌼 user db: {user_db.name}")
         if not user_db:
             raise HTTPException(
                 status_code=400,
                 detail="Nom d'utilisateur.ice ou mot de passe incorrect.",
                 headers={"X_error_Code": "INCORRECT_DATA_IN_FORM"}
             )
-        user_schema=UserSchema(**user_db.__dict__) 
+        user_dict = {}
+        user_dict["name"] = user_db.name
+        user_dict["email"] = user_db.email
+        user_schema = UserSchema(**user_dict)
+        # ajouter création et renvoi token ici
+        return user_schema
+        
+        
+            
+       
+        
   
-        if not verify_password(form_data.password, user_schema.password):
-            raise HTTPException(
-                status_code=400,
-                detail="Nom d'utilisateur.ice ou mot de passe incorrect.",
-                headers={"X_error_Code": "INCORRECT_DATA_IN_FORM"}
-            )
+
             
             
