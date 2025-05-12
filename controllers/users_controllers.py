@@ -23,14 +23,12 @@ def verify_password(plain_password, hashed_password):
 
 def get_user(username:str):
     with SessionLocal() as db:
-        print("🟡 GET USER:", db.query(User).filter(User.name == username).first())
         return db.query(User).filter(User.name == username).first()
 
 
 def authenticate_user(username: str, password:str):
     with SessionLocal() as db:
         user = get_user(username)  
-        print(f"🟣 AUTHENTICATE USER: {user}")
         if not user:
             return False
         if not verify_password(password, user.password):

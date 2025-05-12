@@ -29,25 +29,27 @@ router = APIRouter(
 )
 
 
-
 @router.post("/register", response_model=UserSchema)
-async def register_user(user: dict):
+async def register_user(user: UserLogged):
     with SessionLocal() as db:
-        user_schema = UserSchema(**user)
-        db_user = db.query(User).filter(User.email == user_schema.email).first()
-        print(f"👩‍🦰 db user: {db_user}, {type(db_user)}")
-        if db_user:
+        user_db = get_user(username=user.name)
+        if user_db:
             raise HTTPException(
                     status_code=404,
-                    detail=f"L'email existe déjà dans la db",
+                    detail=f"Le user existe déjà dans la db",
                     headers={"X-Error-Code": "EMAIL_ALREADY_REGISTERED"}
             )
         
-        hashed_password = get_password_hash(user_schema.password)
-        db_user = User(name=user_schema.name, email=user_schema.email, password=hashed_password)
-        db.add(db_user)
+        hashed_password = get_password_hash(user.password)
+        new_db_user = User(name=user.name, email=user.email, password=hashed_password)
+        db.add(new_db_user)
         db.commit()
-        print(f"👑 user newly registered to db: {db_user.name}, {type(db_user)}")
+        print(f"👑 user newly registered to db: {new_db_user.name}, {type(new_db_user)}")
+        
+        user_dict = {}
+        user_dict["name"] = new_db_user.name
+        user_dict["email"] = new_db_user.email
+        user_schema = UserSchema(**user_dict)
         return user_schema
 
 
