@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from models.user_models import User
 from schemas.user_schemas import *
 from typing import Annotated
-from controllers.users_controllers import *
+from services.users_services import *
 
 
 router = APIRouter(
