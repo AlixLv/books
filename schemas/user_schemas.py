@@ -11,11 +11,16 @@ class UserSchema(BaseModel):
 
 
 class UserLogged(UserSchema):
-    password: str
-    class Config:
-        orm_mode = True    
+    password: str  
 
 class UserId(UserSchema):
     id: int
     class Config:
         orm_mode = True    
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str 
+
+class TokenData(BaseModel):
+    username: str | None = None           
