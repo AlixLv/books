@@ -54,7 +54,6 @@ async def login_user(form_data: Annotated[OAuth2PasswordRequestForm, Depends()])
     return Token(access_token=access_token, token_type="bearer")
         
         
-# test endpoint protégé
 @router.get("/me", response_model=UserSchema) 
 async def read_user_me(current_user: Annotated[User, Depends(get_current_user)]):
     try:
@@ -67,7 +66,34 @@ async def read_user_me(current_user: Annotated[User, Depends(get_current_user)])
             detail=f"Erreur lors de la récupération du user: {str(e)}"
         )
         
-  
 
+@router.post("/me/change_password")
+async def reset_password(current_user: Annotated[User, Depends(get_current_user)], data:UserChangePassword):    
+    with SessionLocal() as db:
+        if not verify_password(data.old_password, current_user.password):
+            raise  HTTPException(
+                status_code = 400,
+                detail = "L'ancien mot de passe de correspond pas.",
+                headers = {"X_error_Code": "INCORRECT_DATA_IN_FORM"},
+            )
+            
+        if data.new_password != data.confirm_password:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Le nouveau mot de passe et sa confirmation sont différentes.",
+                headers = {"X_error_Code": "INCORRECT_DATA_IN_FORM"},
+                )
+        
+        print(f"👩‍🦰 CURRENT USER BEFORE UDPATE: {current_user.name}, {current_user.password}")
+            
+        new_hashed_password = get_password_hash(data.new_password)
+        print(f"🟣 NEW PASSWORD: {data.new_password}, NEW HASHED PASSWORD: {new_hashed_password}")
+        current_user.password = new_hashed_password
+        db.add(current_user)
+        db.commit() 
+        print(f"✅ Le password de {current_user.name} a bien été modifié: {current_user.password}")
+    
+    
+    
             
             

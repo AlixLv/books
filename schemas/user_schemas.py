@@ -18,6 +18,11 @@ class UserId(UserSchema):
     class Config:
         orm_mode = True    
 
+class UserChangePassword(BaseModel):
+    old_password: str
+    new_password: str
+    confirm_password: str
+
 class Token(BaseModel):
     access_token: str
     token_type: str 
