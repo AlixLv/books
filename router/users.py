@@ -1,6 +1,6 @@
 
 from fastapi import APIRouter, Path, HTTPException, Depends, status
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 from db.supabase import SessionLocal
 from fastapi.security import OAuth2PasswordRequestForm 
 from models.user_models import User
@@ -39,7 +39,7 @@ async def register_user(user: UserLogged):
 @router.post("/token", response_model=Token)
 async def login_user(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     user_db = authenticate_user(form_data.username, form_data.password)
-    print(f"🌼 user db: {user_db.name}")
+    print(f"🌼 type user_db: {type(user_db)}")
     if not user_db:
         raise HTTPException(
             status_code=400,
@@ -93,7 +93,8 @@ async def reset_password(current_user: Annotated[User, Depends(get_current_user)
         db.commit() 
         print(f"✅ Le password de {current_user.name} a bien été modifié: {current_user.password}")
     
-    
+    # annuler le token en cours
+    # déconnecter le User pour qu'iel se connecte à nouveau et obtienne un nouveau Token 
     
             
             

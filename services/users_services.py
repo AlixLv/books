@@ -4,7 +4,7 @@ from typing import Annotated
 import bcrypt
 import jwt
 from jwt.exceptions import InvalidTokenError
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Header 
 from fastapi.security import OAuth2PasswordBearer
 from db.supabase import SessionLocal
 from datetime import datetime, timedelta, timezone
@@ -53,14 +53,14 @@ def authenticate_user(username: str, password:str):
     if not verify_password(password, user.password):
         return False
     return user 
-
+    
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     print(f"🔍 Token received: {token[:20]}...")
     
     credentials_exception = HTTPException(
         status_code = status.HTTP_401_UNAUTHORIZED,
-        detail = "N'est pas authentifié",
+        detail = "L'utilisateur n'est pas authentifié",
         headers = {"WWW-Authenticate": "Bearer"},
     )
     try:
