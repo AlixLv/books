@@ -4,12 +4,15 @@ from typing import Annotated
 import bcrypt
 import jwt
 from jwt.exceptions import InvalidTokenError
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Header 
 from fastapi.security import OAuth2PasswordBearer
-from db.supabase import SessionLocal
+from sqlalchemy.orm import Session
+from db.supabase import SessionLocal, get_session
 from datetime import datetime, timedelta, timezone
 from models.user_models import User
 from schemas.user_schemas import *
+from models.blacklist_token_models import BlacklistedToken
+
 
 load_dotenv()
 
@@ -41,28 +44,35 @@ def verify_password(plain_password, hashed_password):
         )
 
 
-def get_user(username:str):
-    with SessionLocal() as db:
-        return db.query(User).filter(User.name == username).first()
+def get_user(db:Session, username:str):
+    return db.query(User).filter(User.name == username).first()
 
 
-def authenticate_user(username: str, password:str):
-    user = get_user(username)  
+def authenticate_user(db:Session, username: str, password:str):
+    user = get_user(db, username)  
     if not user:
         return False
     if not verify_password(password, user.password):
         return False
     return user 
+    
 
-
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db:Session=Depends(get_session)):
     print(f"🔍 Token received: {token[:20]}...")
     
     credentials_exception = HTTPException(
         status_code = status.HTTP_401_UNAUTHORIZED,
-        detail = "N'est pas authentifié",
+        detail = "L'utilisateur n'est pas authentifié",
         headers = {"WWW-Authenticate": "Bearer"},
     )
+    
+    if is_token_blacklisted(token):
+        raise HTTPException(
+        status_code = status.HTTP_401_UNAUTHORIZED,
+        detail = "Token invalide ou expiré. Veuillez vous reconnecter",
+        headers = {"WWW-Authenticate": "Bearer"},
+    )
+        
     try:
         algorithm = os.environ.get("ALGORITHM", "HS256")
         if not algorithm:
@@ -90,7 +100,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         print(f"⚠️ Unexpected error: {str(e)}")
         raise credentials_exception
 
-    user = get_user(token_data.username)
+    user = get_user(db, token_data.username)
     print(f"🐸 USER: {user.name}, {type(user)}") 
     if user is None:
         print(f"🐙 EXCEPTION 3: User not found")
@@ -115,3 +125,27 @@ def create_access_token(data: dict, expires_delta: Annotated[timedelta, None]):
     return encoded_jwt        
 
 
+def is_token_blacklisted(token:str):
+    with SessionLocal() as db:
+        blacklisted = db.query(BlacklistedToken).filter(BlacklistedToken.token == token).first()
+        if blacklisted is None:
+            return False
+        return True
+
+
+def add_blacklist_token(token:str, expires_at:datetime, user_id:UserId):
+    with SessionLocal() as db:
+        blacklisted_token = BlacklistedToken(token=token, expires_at=expires_at, user_id=user_id)    
+        db.add(blacklisted_token)
+        db.commit()
+
+
+def clean_expired_token():
+    with SessionLocal() as db:
+        today = datetime.now()
+        expired_tokens = db.query(BlacklistedToken).filter(BlacklistedToken.expires_at < today)
+        for token in expired_tokens:
+            db.delete(token)
+        db.commit()
+            
+               

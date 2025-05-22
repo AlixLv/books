@@ -32,6 +32,7 @@ except Exception as e:
 
 # session = création de l'interface pour intéragir avec la db
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=ENGINE)
+
 Base = declarative_base()
 
 
