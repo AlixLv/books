@@ -73,23 +73,22 @@ async def logout(
     response: Response, 
     token: Annotated[str, Depends(oauth2_scheme)]
     ):
-    with SessionLocal() as db:
-        algorithm = os.environ.get("ALGORITHM", "HS256")
-        if not algorithm:
-            algorithm="HS256"
-        print(f"🔑 Using algorithm for decoding: {algorithm}")  
-        
-        secret_key = os.environ.get("SECRET_KEY")
-        if not secret_key:
-            raise ValueError("SECRET_KEY must be set in .env file")
+    algorithm = os.environ.get("ALGORITHM", "HS256")
+    if not algorithm:
+        algorithm="HS256"
+    print(f"🔑 Using algorithm for decoding: {algorithm}")  
     
-        payload = jwt.decode(token, secret_key, algorithms=[algorithm])
-        print(f"🐹 PAYLOAD: {payload}") 
-        expires_at = datetime.fromtimestamp(payload.get("exp"))   
-        print(f"🐥 EXPIRES AT: {expires_at}")
-        
-        add_blacklist_token(token, expires_at, current_user.id)
-        print(f"👋 User {current_user.id} bien déconnecté, token invalidé")
+    secret_key = os.environ.get("SECRET_KEY")
+    if not secret_key:
+        raise ValueError("SECRET_KEY must be set in .env file")
+
+    payload = jwt.decode(token, secret_key, algorithms=[algorithm])
+    print(f"🐹 PAYLOAD: {payload}") 
+    expires_at = datetime.fromtimestamp(payload.get("exp"))   
+    print(f"🐥 EXPIRES AT: {expires_at}")
+    
+    add_blacklist_token(token, expires_at, current_user.id)
+    print(f"👋 User {current_user.id} bien déconnecté, token invalidé")
 
 
 @router.post("/me/change_password")
