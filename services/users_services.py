@@ -6,7 +6,8 @@ import jwt
 from jwt.exceptions import InvalidTokenError
 from fastapi import Depends, HTTPException, status, Header 
 from fastapi.security import OAuth2PasswordBearer
-from db.supabase import SessionLocal
+from sqlalchemy.orm import Session
+from db.supabase import SessionLocal, get_session
 from datetime import datetime, timedelta, timezone
 from models.user_models import User
 from schemas.user_schemas import *
@@ -43,13 +44,12 @@ def verify_password(plain_password, hashed_password):
         )
 
 
-def get_user(username:str):
-    with SessionLocal() as db:
-        return db.query(User).filter(User.name == username).first()
+def get_user(db:Session, username:str):
+    return db.query(User).filter(User.name == username).first()
 
 
-def authenticate_user(username: str, password:str):
-    user = get_user(username)  
+def authenticate_user(db:Session, username: str, password:str):
+    user = get_user(db, username)  
     if not user:
         return False
     if not verify_password(password, user.password):
@@ -57,7 +57,7 @@ def authenticate_user(username: str, password:str):
     return user 
     
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db:Session=Depends(get_session)):
     print(f"🔍 Token received: {token[:20]}...")
     
     credentials_exception = HTTPException(
@@ -100,7 +100,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         print(f"⚠️ Unexpected error: {str(e)}")
         raise credentials_exception
 
-    user = get_user(token_data.username)
+    user = get_user(db, token_data.username)
     print(f"🐸 USER: {user.name}, {type(user)}") 
     if user is None:
         print(f"🐙 EXCEPTION 3: User not found")
