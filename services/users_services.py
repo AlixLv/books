@@ -10,6 +10,8 @@ from db.supabase import SessionLocal
 from datetime import datetime, timedelta, timezone
 from models.user_models import User
 from schemas.user_schemas import *
+from models.blacklist_token_models import BlacklistedToken
+
 
 load_dotenv()
 
@@ -115,3 +117,16 @@ def create_access_token(data: dict, expires_delta: Annotated[timedelta, None]):
     return encoded_jwt        
 
 
+def is_token_blacklisted(token:Token):
+    with SessionLocal() as db:
+        blacklisted = db.query(BlacklistedToken).filter(BlacklistedToken.token == token.access_token).first()
+        if blacklisted is None:
+            return False
+        return True
+
+
+def add_blacklist_token(token:Token, expires_at:datetime, user_id:UserId):
+    with SessionLocal() as db:
+        blacklisted_token = BlacklistedToken(token=token.access_token, expires_at=expires_at, user_id=user_id.id)    
+        db.add(blacklisted_token)
+        db.commit()

@@ -92,7 +92,8 @@ async def reset_password(current_user: Annotated[User, Depends(get_current_user)
         db.add(current_user)
         db.commit() 
         print(f"✅ Le password de {current_user.name} a bien été modifié: {current_user.password}")
-    
+
+        
     # annuler le token en cours
     # déconnecter le User pour qu'iel se connecte à nouveau et obtienne un nouveau Token 
     

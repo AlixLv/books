@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from db.supabase import Base 
-from schemas.user_schemas import UserSchema
 
 
 class User(Base):
@@ -11,3 +10,6 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     password = Column(String)
     books = relationship("Book", back_populates="owner")
+    
+
+    

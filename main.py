@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.responses import JSONResponse
 from models.user_models import User
 from models.book_models import Book
+from models.blacklist_token_models import BlacklistedToken
 from schemas.user_schemas import UserSchema
 from db.supabase import ENGINE, Base, SessionLocal
 from router import books, users
@@ -43,8 +44,6 @@ async def book_already_exists_handler(request: Request, exc: ApiException):
 @app.get("/")
 def read_root():
     return {"message": "Bienvenue!"}
-
-
 
 
 if __name__ == "__main__":
