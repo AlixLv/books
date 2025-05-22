@@ -65,6 +65,14 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         detail = "L'utilisateur n'est pas authentifié",
         headers = {"WWW-Authenticate": "Bearer"},
     )
+    
+    if is_token_blacklisted(token):
+        raise HTTPException(
+        status_code = status.HTTP_401_UNAUTHORIZED,
+        detail = "Token invalide ou expiré. Veuillez vous reconnecter",
+        headers = {"WWW-Authenticate": "Bearer"},
+    )
+        
     try:
         algorithm = os.environ.get("ALGORITHM", "HS256")
         if not algorithm:
@@ -117,16 +125,27 @@ def create_access_token(data: dict, expires_delta: Annotated[timedelta, None]):
     return encoded_jwt        
 
 
-def is_token_blacklisted(token:Token):
+def is_token_blacklisted(token:str):
     with SessionLocal() as db:
-        blacklisted = db.query(BlacklistedToken).filter(BlacklistedToken.token == token.access_token).first()
+        blacklisted = db.query(BlacklistedToken).filter(BlacklistedToken.token == token).first()
         if blacklisted is None:
             return False
         return True
 
 
-def add_blacklist_token(token:Token, expires_at:datetime, user_id:UserId):
+def add_blacklist_token(token:str, expires_at:datetime, user_id:UserId):
     with SessionLocal() as db:
-        blacklisted_token = BlacklistedToken(token=token.access_token, expires_at=expires_at, user_id=user_id.id)    
+        blacklisted_token = BlacklistedToken(token=token, expires_at=expires_at, user_id=user_id)    
         db.add(blacklisted_token)
         db.commit()
+
+
+def clean_expired_token():
+    with SessionLocal() as db:
+        today = datetime.now()
+        expired_tokens = db.query(BlacklistedToken).filter(BlacklistedToken.expires_at < today)
+        for token in expired_tokens:
+            db.delete(token)
+        db.commit()
+            
+               

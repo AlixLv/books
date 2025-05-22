@@ -1,5 +1,5 @@
 
-from fastapi import APIRouter, Path, HTTPException, Depends, status
+from fastapi import APIRouter, Path, HTTPException, Depends, status, Response
 from datetime import timedelta
 from db.supabase import SessionLocal
 from fastapi.security import OAuth2PasswordRequestForm 
@@ -65,7 +65,32 @@ async def read_user_me(current_user: Annotated[User, Depends(get_current_user)])
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Erreur lors de la récupération du user: {str(e)}"
         )
+
+
+@router.post("/logout")
+async def logout(
+    current_user: Annotated[User, Depends(get_current_user)], 
+    response: Response, 
+    token: Annotated[str, Depends(oauth2_scheme)]
+    ):
+    with SessionLocal() as db:
+        algorithm = os.environ.get("ALGORITHM", "HS256")
+        if not algorithm:
+            algorithm="HS256"
+        print(f"🔑 Using algorithm for decoding: {algorithm}")  
         
+        secret_key = os.environ.get("SECRET_KEY")
+        if not secret_key:
+            raise ValueError("SECRET_KEY must be set in .env file")
+    
+        payload = jwt.decode(token, secret_key, algorithms=[algorithm])
+        print(f"🐹 PAYLOAD: {payload}") 
+        expires_at = datetime.fromtimestamp(payload.get("exp"))   
+        print(f"🐥 EXPIRES AT: {expires_at}")
+        
+        add_blacklist_token(token, expires_at, current_user.id)
+        print(f"👋 User {current_user.id} bien déconnecté, token invalidé")
+
 
 @router.post("/me/change_password")
 async def reset_password(current_user: Annotated[User, Depends(get_current_user)], data:UserChangePassword):    
