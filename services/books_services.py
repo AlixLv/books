@@ -1,10 +1,9 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from db.supabase import SessionLocal, get_session
-from fastapi import Depends, Form
 from typing import Annotated
 from models.book_models import Book
 from schemas.book_schemas import *
+from schemas.book_filter import BookFilter
 
 
 
@@ -36,7 +35,7 @@ def query_one_book(db:Session, id:int):
     return result
 
 
-def query_add_book(db:Session, data:BookSchema):
+def query_check_book(db:Session, data:BookSchema):
     existing_book = db.query(Book).filter(Book.title == data.title).first()
     return existing_book
     

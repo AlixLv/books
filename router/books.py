@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Path, HTTPException
+from fastapi import APIRouter, Path, HTTPException, Depends
 from sqlalchemy.orm import Session
 from db.supabase import get_session
 from pydantic import ValidationError
 from models.book_models import Book
 from schemas.book_schemas import *
+from schemas.book_filter import BookFilter
 from services.books_services import *
 from exceptions.exceptions import BookAlreadyExists
 
@@ -66,7 +67,7 @@ async def add_book(data:dict, db:Session=Depends(get_session)):
         book_schema = BookSchema(**data)
         print(f"🌼 nouveau book schéma: {book_schema}")
         
-        existing_book = query_add_book(db, book_schema)
+        existing_book = query_check_book(db, book_schema)
         
         if existing_book:
             raise BookAlreadyExists()

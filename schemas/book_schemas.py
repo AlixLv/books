@@ -32,6 +32,7 @@ class BookSchema(BaseModel):
     title: str
     author: str
     availability: AvailabilityEnum
+    status: StatusEnum
     category: CategoriesEnum
     favourite: bool
     class Config:
@@ -39,11 +40,4 @@ class BookSchema(BaseModel):
         orm_mode = True
 
 
-##### DATACLASS FOR FILTERING ##### 
-@dataclass
-class BookFilter:
-    title: Optional[str] = None
-    author: Optional[str] = None
-    availability: Optional[AvailabilityEnum] = None
-    category: Optional[CategoriesEnum] = None
-    favourite: Optional[bool] = None 
+
