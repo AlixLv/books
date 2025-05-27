@@ -6,6 +6,7 @@ from models.book_models import Book
 from schemas.book_schemas import *
 from schemas.book_filter import BookFilter
 from services.books_services import *
+from services.users_services import *
 from exceptions.exceptions import BookAlreadyExists
 
 
@@ -15,7 +16,10 @@ router = APIRouter(
 
 
 @router.get("/all", response_model=list[BookSchema])
-async def get_all_books(db:Session=Depends(get_session)):
+async def get_all_books(
+    current_user: Annotated[User, Depends(get_current_user)], 
+    db:Session=Depends(get_session)
+    ):
     all_books = query_all_books(db)  
     
     if not all_books:
@@ -33,8 +37,12 @@ async def get_all_books(db:Session=Depends(get_session)):
 
 
 
-@router.get("/filter")
-async def filter_books(filters:BookFilter = Depends(), db:Session=Depends(get_session)):
+@router.get("/filter", response_model=list[BookSchema])
+async def filter_books(
+    current_user: Annotated[User, Depends(get_current_user)], 
+    filters:BookFilter = Depends(), 
+    db:Session=Depends(get_session)
+    ):
     res = query_all_books(db, filters)
     
     if not res:
@@ -53,7 +61,11 @@ async def filter_books(filters:BookFilter = Depends(), db:Session=Depends(get_se
             
         
 @router.get("/{id}", response_model=BookSchema)
-async def get_book(db:Session=Depends(get_session), id:int = Path(ge=1)):
+async def get_book(
+    current_user: Annotated[User, Depends(get_current_user)],
+    db:Session=Depends(get_session), 
+    id:int = Path(ge=1)
+    ):
     result = query_one_book(db, id)
     
     if not result:
@@ -71,7 +83,11 @@ async def get_book(db:Session=Depends(get_session), id:int = Path(ge=1)):
 
 
 @router.post("/add", response_model=BookSchema)
-async def add_book(data:dict, db:Session=Depends(get_session)):
+async def add_book(
+    current_user: Annotated[User, Depends(get_current_user)],
+    data:dict, 
+    db:Session=Depends(get_session)
+    ):
     try:
         book_schema = BookSchema(**data)
         print(f"🌼 nouveau book schéma: {book_schema}")
@@ -91,7 +107,12 @@ async def add_book(data:dict, db:Session=Depends(get_session)):
 
 
 @router.put("/update/{id}", response_model=BookSchema)
-async def update_book(book_update:BookSchema, db:Session=Depends(get_session), id:int = Path(ge=1)):
+async def update_book(
+    current_user: Annotated[User, Depends(get_current_user)],
+    book_update:BookSchema, 
+    db:Session=Depends(get_session), 
+    id:int = Path(ge=1)
+    ):
     result = query_one_book(db, id)
     
     if not result:
@@ -115,7 +136,11 @@ async def update_book(book_update:BookSchema, db:Session=Depends(get_session), i
 
 
 @router.delete("/delete/{id}", response_model=BookSchema)
-async def delete_book(db:Session=Depends(get_session), id: int = Path(ge=1)):
+async def delete_book(
+    current_user: Annotated[User, Depends(get_current_user)],
+    db:Session=Depends(get_session), 
+    id: int = Path(ge=1)
+    ):
     result = query_one_book(db, id)
     
     if not result:
