@@ -10,6 +10,12 @@ from schemas.book_schemas import *
 
 def query_all_books(db:Session, filters:BookFilter=None):
     query = db.query(Book)
+    query = apply_filters(query, filters)
+    result = db.execute(query).scalars()    
+    return result
+
+
+def apply_filters(query, filters=None):
     if filters is not None:
         if filters.title is not None:
             query = query.filter(Book.title.ilike(f'%{filters.title}%'))
@@ -21,9 +27,8 @@ def query_all_books(db:Session, filters:BookFilter=None):
             query = query.filter(Book.category == filters.category)
         if filters.favourite is not None:
             query = query.filter(Book.favourite == filters.favourite)            
-    result = db.execute(query).scalars()        
-    return result
-
+    return query
+        
 
 def query_one_book(db:Session, id:int):
     query = select(Book).where(Book.id==id)
