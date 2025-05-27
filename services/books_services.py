@@ -9,8 +9,9 @@ from schemas.book_filter import BookFilter
 
 def query_all_books(db:Session, filters:BookFilter=None):
     query = db.query(Book)
-    query = apply_filters(query, filters)
-    result = db.execute(query).scalars()    
+    if filters is not None:
+        query = apply_filters(query, filters)
+    result = query.all() 
     return result
 
 

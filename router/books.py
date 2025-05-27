@@ -16,7 +16,8 @@ router = APIRouter(
 
 @router.get("/all", response_model=list[BookSchema])
 async def get_all_books(db:Session=Depends(get_session)):
-    all_books = query_all_books(db)    
+    all_books = query_all_books(db)  
+    
     if not all_books:
         raise HTTPException(
                 status_code=404,
@@ -24,7 +25,7 @@ async def get_all_books(db:Session=Depends(get_session)):
                 headers={"X-Error-Code": "BOOKS_NOT_FOUND"}
             )
 
-    # créer une liste de book instances de class BookSchema. 
+    #créer une liste de book instances de class BookSchema. 
     res = []
     for book in all_books:
         res.append(BookSchema(**book.__dict__))
@@ -35,9 +36,17 @@ async def get_all_books(db:Session=Depends(get_session)):
 @router.get("/filter")
 async def filter_books(filters:BookFilter = Depends(), db:Session=Depends(get_session)):
     res = query_all_books(db, filters)
+    
+    if not res:
+        raise HTTPException(
+                status_code=404,
+                detail=f"Aucun livre ne correspond à votre recherche.",
+                headers={"X-Error-Code": "BOOK_NOT_FOUND"}
+                )
        
     filtered_books = []
     for book in res:
+        print(f"BOOK: {book}")
         filtered_books.append(BookSchema(**book.__dict__))
     return filtered_books
 
