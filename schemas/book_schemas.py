@@ -1,5 +1,7 @@
 from enum import Enum
 from pydantic import BaseModel
+from dataclasses import dataclass
+from typing import Optional
 
 
 ##### ENUM #####
@@ -30,10 +32,18 @@ class BookSchema(BaseModel):
     title: str
     author: str
     availability: AvailabilityEnum
-    status: StatusEnum
     category: CategoriesEnum
     favourite: bool
-    
     class Config:
         use_enum_values = True
         orm_mode = True
+
+
+##### DATACLASS FOR FILTERING ##### 
+@dataclass
+class BookFilter:
+    title: Optional[str] = None
+    author: Optional[str] = None
+    availability: Optional[AvailabilityEnum] = None
+    category: Optional[CategoriesEnum] = None
+    favourite: Optional[bool] = None 

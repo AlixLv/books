@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from db.supabase import get_session
 from pydantic import ValidationError
 from models.book_models import Book
-from schemas.book_schemas import BookSchema
+from schemas.book_schemas import *
 from services.books_services import *
 from exceptions.exceptions import BookAlreadyExists
 
@@ -29,7 +29,18 @@ async def get_all_books(db:Session=Depends(get_session)):
         res.append(BookSchema(**book.__dict__))
     return res
 
-        
+
+
+@router.get("/filter")
+async def filter_books(filters:BookFilter = Depends(), db:Session=Depends(get_session)):
+    res = query_all_books(db, filters)
+       
+    filtered_books = []
+    for book in res:
+        filtered_books.append(BookSchema(**book.__dict__))
+    return filtered_books
+
+            
         
 @router.get("/{id}", response_model=BookSchema)
 async def get_book(db:Session=Depends(get_session), id:int = Path(ge=1)):

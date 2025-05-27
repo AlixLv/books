@@ -1,5 +1,4 @@
 from db.supabase import Base 
-from enum import Enum
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Enum as SQLAlechmyEnum
 from schemas.book_schemas import AvailabilityEnum, StatusEnum, CategoriesEnum, BookSchema
 from models.user_models import User
