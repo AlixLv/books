@@ -1,5 +1,7 @@
 from enum import Enum
 from pydantic import BaseModel
+from dataclasses import dataclass
+from typing import Optional
 
 
 ##### ENUM #####
@@ -33,7 +35,9 @@ class BookSchema(BaseModel):
     status: StatusEnum
     category: CategoriesEnum
     favourite: bool
-    
     class Config:
         use_enum_values = True
         orm_mode = True
+
+
+

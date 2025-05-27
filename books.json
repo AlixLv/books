@@ -96,9 +96,14 @@
         "status": "read",
         "category": "fiction",
         "favourite": true 
+    },
+    {
+        "title": "Hexa",
+        "author": "Gabrielle Filteau-Chiba",
+        "availability": "borrowed",
+        "status": "read",
+        "category": "fiction",
+        "favourite": true 
     }
-
-
-
 
 ]
