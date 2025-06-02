@@ -14,10 +14,9 @@ router = APIRouter(
     prefix="/book"
 )
 
-
+# current_user: Annotated[User, Depends(get_current_user)], --> à rajouter dans get_all_books quand authorisation intégrée côté front
 @router.get("/all", response_model=list[BookSchema])
-async def get_all_books(
-    current_user: Annotated[User, Depends(get_current_user)], 
+async def get_all_books( 
     db:Session=Depends(get_session)
     ):
     all_books = query_all_books(db)  
