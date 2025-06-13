@@ -17,11 +17,19 @@ router = APIRouter(
 # current_user: Annotated[User, Depends(get_current_user)], --> à rajouter dans get_all_books quand authorisation intégrée côté front
 @router.get("/all", response_model=list[BookSchema])
 async def get_all_books( 
+    filters:BookFilter = Depends(),                     
     db:Session=Depends(get_session)
     ):
-    all_books = query_all_books(db)  
+    all_books = query_all_books(db, filters)  
     
-    if not all_books:
+    if not all_books and not filters:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Aucun livre ne correspond à votre recherche.",
+            headers={"X-Error-Code": "BOOK_NOT_FOUND"}
+        ) 
+        
+    elif not all_books:
         raise HTTPException(
                 status_code=404,
                 detail="Aucun livre enregistré dans la db!",
