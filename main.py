@@ -9,13 +9,27 @@ from db.supabase import ENGINE, Base, SessionLocal
 from router import books, users
 from exceptions.exceptions import ApiException
 from datetime import datetime
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI()    
 
 app.include_router(books.router)
 app.include_router(users.router)
+
+
+origins = [
+    "http://localhost:3000",
+    "localhost:3000"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+                   )
 
 
 @app.exception_handler(HTTPException)

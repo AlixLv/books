@@ -22,12 +22,10 @@ URL_CONNEXION = f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{dbname}
 
 
 # création point de départ pour intéragir avec la db, via la DBAPI
-try:
-    ENGINE = create_engine(URL_CONNEXION, pool_pre_ping=True, echo=True)
-    connection = ENGINE.connect()
-    print(f"Connexion SQLAlchemy réussie")
-except Exception as e:
-    print(f"Erreur de connexion SQLALchemy: {e}")    
+ENGINE = create_engine(URL_CONNEXION, pool_pre_ping=True, echo=True)
+connection = ENGINE.connect()
+print(f"Connexion SQLAlchemy réussie")
+  
 
 
 # session = création de l'interface pour intéragir avec la db

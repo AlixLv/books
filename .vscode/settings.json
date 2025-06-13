@@ -1,0 +1,5 @@
+{
+    "python.pythonPath": "./myvenv/bin/python",
+    "python.terminal.activateEnvironment": true,
+    "python.defaultInterpreterPath": "./myvenv/bin/python"
+}
