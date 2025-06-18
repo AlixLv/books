@@ -10,7 +10,7 @@ from schemas.book_filter import BookFilter
 def query_all_books(db:Session, filters:BookFilter=None):
     query = db.query(Book)
     if filters is not None:
-        query = apply_filters(query, filters)
+        query = apply_filters(query, filters) 
     result = query.all() 
     return result
 
@@ -23,6 +23,8 @@ def apply_filters(query, filters=None):
             query = query.filter(Book.author.ilike(f'%{filters.author}%'))
         if filters.availability is not None:
             query = query.filter(Book.availability == filters.availability)
+        if filters.status is not None:
+            query = query.filter(Book.status == filters.status)    
         if filters.category is not None:
             query = query.filter(Book.category == filters.category)
         if filters.favourite is not None:

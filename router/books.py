@@ -25,14 +25,14 @@ async def get_all_books(
     if not all_books and not filters:
         raise HTTPException(
             status_code=404,
-            detail=f"Aucun livre ne correspond à votre recherche.",
+            detail=f"Aucun livre enregistré dans la db!",
             headers={"X-Error-Code": "BOOK_NOT_FOUND"}
         ) 
         
     elif not all_books:
         raise HTTPException(
                 status_code=404,
-                detail="Aucun livre enregistré dans la db!",
+                detail=f"Aucun livre ne correspond à votre recherche.",
                 headers={"X-Error-Code": "BOOKS_NOT_FOUND"}
             )
 

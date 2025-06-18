@@ -1,5 +1,6 @@
 from typing import Annotated
 from fastapi import FastAPI, HTTPException, Request, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from models.user_models import User
 from models.book_models import Book
@@ -9,18 +10,15 @@ from db.supabase import ENGINE, Base, SessionLocal
 from router import books, users
 from exceptions.exceptions import ApiException
 from datetime import datetime
-from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI()    
 
-app.include_router(books.router)
-app.include_router(users.router)
-
 
 origins = [
     "http://localhost:3000",
-    "localhost:3000"
+    "http://127.0.0.1:3000",
+    "http://192.168.4.213:3000",
 ]
 
 app.add_middleware(
@@ -30,6 +28,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
                    )
+
+
+app.include_router(books.router)
+app.include_router(users.router)
 
 
 @app.exception_handler(HTTPException)
