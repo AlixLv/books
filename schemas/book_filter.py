@@ -8,6 +8,7 @@ class BookFilter:
     title: Optional[str] = None
     author: Optional[str] = None
     availability: Optional[AvailabilityEnum] = None
+    status: Optional[StatusEnum] = None
     category: Optional[CategoriesEnum] = None
     favourite: Optional[bool] = None 
     
